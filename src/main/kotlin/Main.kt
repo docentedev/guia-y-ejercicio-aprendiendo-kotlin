@@ -161,6 +161,13 @@ fun main(): Unit = runBlocking {
     // Dentro del bloque solo llamamos a una función 'suspend' que internamente usa 'delay'
     // sin abrir su propio coroutineScope ni lanzar más corrutinas (ver
     // AulaMaterializada.generarReporteAsync): ese es el único lugar del proyecto con 'delay'.
+    // 'Job' es la REFERENCIA (el handle) a la corrutina que se lanza con 'launch', no su
+    // resultado: es lo que te permite controlarla desde afuera (join(), cancel(), isActive...).
+    // Equivalente a Java: el objeto Thread que obtienes al hacer "new Thread(runnable)" (puedes
+    // hacer thread.join()/interrupt(), pero el Thread no "contiene" ningún valor de retorno), o
+    // al Future<Void> que devuelve executorService.submit(runnable). En cambio, si hubiéramos
+    // usado 'async' en lugar de 'launch', obtendríamos un 'Deferred<T>' (equivalente a un
+    // Future<T> real, con valor, que se obtiene con '.await()' ≈ future.get()).
     val promedioParaReporte = resultadoPromedio.getOrDefault(0.0)
     val trabajoNotificacion: Job = GlobalScope.launch {
         val reporte = aula.generarReporteAsync(promedioParaReporte)
